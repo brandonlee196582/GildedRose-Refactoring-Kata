@@ -1,9 +1,11 @@
 
 class Item {
-  constructor(name, sellIn, quality){
+  constructor(name, sellBy, quality, sellByIncrement, qualityIncrement){
     this.name = name;
-    this.sellIn = sellIn;
+    this.sellBy = sellBy;
     this.quality = quality;
+    this.sellByIncrement = sellByIncrement;
+    this.qualityIncrement = qualityIncrement;
   }
 }
 

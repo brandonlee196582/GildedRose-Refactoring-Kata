@@ -1,49 +1,79 @@
-
 class Shop {
   constructor(items = []) {
     this.items = items;
+    this.qualityIncrementModifier = 1;
+  }
+
+  dailyUpkeepOfEachItem(){
+    this.items.forEach(item => {
+      this.modifyAllIncrementers(item);
+      this.modifyItemProperty(item, item.qualityIncrement * this.qualityIncrementModifier, 'quality');
+      this.modifyItemProperty(item, item.sellByIncrement, 'sellBy');
+    })
+    return this.items;
+  }
+
+  modifyAllIncrementers(item) {
+    this.setSellByIncrementModifier(item)
+    this.setBackstageIncrementModifier(item)
+    this.setMinimumIncrementModifier(item)
+    this.setMaximumIncrementModifier(item)
+  }
+
+  setSellByIncrementModifier(item) {
+    if (item.sellBy < 1 && item.qualityIncrement < 0) {
+      this.qualityIncrementModifier = 2;
+    }
+  }
+
+  setBackstageIncrementModifier(item) {
+    if (item.name.toLowerCase().match('backstage passes')) {
+      this.backstageSellByCheck(item)
+    }
+  }
+
+  setMinimumIncrementModifier(item) {
+    if (item.quality + item.qualityIncrement <= 0) {
+      this.qualityIncrementModifier = -(item.quality) / item.qualityIncrement;
+    }
+  }
+
+  setMaximumIncrementModifier(item) {
+    this.ifItemQualityMoreThan50(item);
+    this.ifQualityIncrementIsZero(item);
   }
 
   modifyItemProperty(item, increment, property) {
-    item[property] += increment
+    item[property] += increment;
   }
 
-  calculateAgedBrie(item, increment) {
-    if (item.name === 'Aged Brie') increment = 1;
-    if (item.name === 'Aged Brie' && item.quality === 50) increment = 0;
-    return increment
+  backstageSellByCheck(item) {
+    this.ifSellByLessThanTen(item);
+    this.ifSellByLessThanFive(item);
   }
 
-  calculateBackstage(item, increment) {
-    if (item.name === 'Backstage passes to a TAFKAL80ETC concert') increment = 1;
-    if (item.name === 'Backstage passes to a TAFKAL80ETC concert' && item.sellIn <= 10) increment = 2;
-    if (item.name === 'Backstage passes to a TAFKAL80ETC concert' && item.sellIn <= 5) increment = 3;
-    if (item.name === 'Backstage passes to a TAFKAL80ETC concert' && item.quality === 50) increment = 0;
-    return increment
+  ifSellByLessThanTen(item) {
+    if (item.sellBy <= 10) {
+      this.qualityIncrementModifier = 2;
+    }
   }
 
-  calculateConjured(item, increment) {
-    if (item.name === 'Conjured') increment = -2
-    if (item.name === 'Conjured' && item.quality === 1) increment = -1
-    if (item.name === 'Conjured' && item.quality === 0) increment = 0
-    return increment
+  ifSellByLessThanFive(item) {
+    if (item.sellBy <= 5) {
+      this.qualityIncrementModifier = 3;
+    }
+  }
+  
+  ifItemQualityMoreThan50(item) {
+    if (item.quality + item.qualityIncrement >= 50) {
+      this.qualityIncrementModifier = (-item.quality + 50) / item.qualityIncrement;
+    }
   }
 
-  dailyUpkeep() {
-    let sellInIncrement = -1;
-    let qualityIncrement = -1;
-    this.items.forEach(item => {
-      if (item.quality === 0) qualityIncrement = 0;
-      if (item.quality === 50) qualityIncrement = -1;
-      qualityIncrement = this.calculateAgedBrie(item, qualityIncrement);
-      if (item.sellIn <= 0) qualityIncrement = -2;
-      if (item.name === 'Sulfuras, Hand of Ragnaros') qualityIncrement = 0, sellInIncrement = 0;
-      qualityIncrement = this.calculateBackstage(item, qualityIncrement);
-      qualityIncrement = this.calculateConjured(item, qualityIncrement);
-      this.modifyItemProperty(item, qualityIncrement, 'quality');
-      this.modifyItemProperty(item, sellInIncrement, 'sellIn');
-    })
-    return this.items
+  ifQualityIncrementIsZero(item) {
+    if (item.qualityIncrement === 0) {
+      this.qualityIncrementModifier = 0;
+    }
   }
 }
 
